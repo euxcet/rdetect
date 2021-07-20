@@ -8,12 +8,12 @@ pub struct MutationRoot;
 
 #[async_graphql::Object]
 impl MutationRoot {
-    async fn new_task(
+    async fn create_task(
         &self,
         ctx: &Context<'_>,
         new_task: NewTask,
     ) -> GqlResult<Task> {
         let db = ctx.data_unchecked::<DataSource>().db_detect.clone();
-        task::service::new_task(db, new_task).await
+        task::service::create_task(db, new_task).await
     }
 }

@@ -13,80 +13,47 @@ use crate::util::{constant::ObjectId, common::gql_uri};
 #[derive(GraphQLQuery)]
 #[graphql(
     schema_path = "./graphql/schema.graphql",
-    query_path = "./graphql/all_tasks.graphql",
+    query_path = "./graphql/create_task.graphql",
     response_derives = "Debug"
 )]
-struct AllTasks;
+struct CreateTask;
 
-pub struct Dashboard {
+pub struct CreateTaskPage {
     link: ComponentLink<Self>,
-    list: Option<Vec<Value>>,
-    fetch_task: Option<FetchTask>,
+    name: String,
     error: Option<String>,
 }
 
 #[derive(Debug)]
 pub enum Msg {
-    PassRequest,
-    ReceiveResponse(Result<Vec<Value>, anyhow::Error>)
+    Create,
+    Update(String),
+    ReceiveResponse(Result<Vec<Value>, anyhow::Error>),
 }
 
-impl Dashboard {
-    fn view_data(&self) -> Html {
-        match self.list {
-            Some(ref list) => {
-                let tasks = list.iter().map(|task| {
-                    html! {
-                        <div>
-                            <li>
-                                { &task["name"].as_str().unwrap() }
-                            </li>
-                        </div>
-                    }
-                });
-                html! {
-                    <ul>
-                        { for tasks }
-                    </ul>
-                }
-            }
-            None => {
-                html! {
-                    <p> { "No tasks." } </p>
-                }
-            }
-        }
-    }
-}
-
-impl Component for Dashboard {
+impl Component for CreateTaskPage {
     type Message = Msg;
     type Properties = ();
 
     fn create(_props: Self::Properties, link: ComponentLink<Self>) -> Self {
         Self {
             link,
-            list: None,
-            fetch_task: None,
+            name: String::new(),
             error: None,
-        }
-    }
-
-    fn rendered(&mut self, first_render: bool) {
-        if first_render {
-            let link = self.link.clone();
-            if first_render {
-                spawn_local(async move {
-                    link.send_message(Msg::PassRequest)
-                })
-            }
         }
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Msg::PassRequest => {
-                let build_query = AllTasks::build_query(all_tasks::Variables {});
+            Msg::Create => {
+                let build_query = CreateTask::build_query(create_task::Variables{ 
+                    task: create_task::NewTask {
+                        name: self.name.clone(),
+                        imageFolder: String::from("f1"),
+                        xmlFolder: String::from("f2"),
+                        labels: vec![String::from("1")],
+                    }
+                });
                 let query = Json(&build_query);
 
                 let request = Request::post(&gql_uri()).body(query).expect("Could not build request.");
@@ -99,49 +66,49 @@ impl Component for Dashboard {
                         let tasks_value: Value =
                             from_str(&resp_str).unwrap();
                         let tasks_vec = tasks_value["data"]
-                            ["allTasks"]
+                            ["createTask"]
                             .as_array()
                             .unwrap()
                             .to_owned();
-
                         Msg::ReceiveResponse(Ok(tasks_vec))
                     }
                 );
 
-                let task = FetchService::fetch(request, callback)
-                    .expect("failed to start request");
-
-                self.fetch_task = Some(task);
-
-                true
+                let _task = FetchService::fetch(request, callback).expect("failed to start request");
             }
             Msg::ReceiveResponse(data) => {
                 match data {
-                    Ok(tasks_vec) => {
-                        self.list = Some(tasks_vec);
+                    Ok(_vec) => {
                     }
                     Err(error) => self.error = Some(error.to_string()),
                 }
-                self.fetch_task = None;
-
-                true
             }
+            Msg::Update(val) => {
+                self.name = val;
+            } 
         }
+        false
     }
 
     fn change(&mut self, _props: Self::Properties) -> ShouldRender {
-        let link = self.link.clone();
-        spawn_local(async move {
-            link.send_message(Msg::PassRequest)
-        });
         false
     }
 
     fn view(&self) -> Html {
         html! {
             <>
-                { self.view_data() }
-                <a href="/CreateTask"> {"Create Task"} </a>
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label">{"Name"}</label>
+                        <input
+                            class="form-text"
+                            placeholder="Task name"
+                            value={self.name.clone()}
+                            oninput={self.link.callback(|e: InputData| Msg::Update(e.value))}
+                        />
+                    </div>
+                    <button class="btn btn-primary" onclick=self.link.callback(|_| Msg::Create)> { "Create" } </button>
+                </form>
             </>
         }
     }

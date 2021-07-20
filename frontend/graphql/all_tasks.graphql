@@ -1,0 +1,9 @@
+query AllTasks {
+  allTasks {
+    id,
+    name,
+    imageFolder,
+    xmlFolder,
+    labels
+  }
+}

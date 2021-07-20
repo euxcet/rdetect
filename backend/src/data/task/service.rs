@@ -53,7 +53,7 @@ pub async fn get_task_by_name(db: Database, name: &str) -> GqlResult<Task> {
     }
 }
 
-pub async fn new_task(db: Database, mut new_task: NewTask) -> GqlResult<Task> {
+pub async fn create_task(db: Database, mut new_task: NewTask) -> GqlResult<Task> {
     let coll = db.collection("tasks");
     if self::get_task_by_name(db.clone(), &new_task.name).await.is_ok() {
         Err(Error::new("email-exists"))

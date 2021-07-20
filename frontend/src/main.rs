@@ -1,9 +1,11 @@
 mod component;
 mod route;
 mod page;
+mod util;
 
 use crate::component::header::HeaderComponent;
 use crate::page::dashboard::Dashboard;
+use crate::page::create_task::CreateTaskPage;
 use crate::route::*;
 
 use yew::prelude::*;
@@ -25,6 +27,9 @@ fn switch(switch: AppRoute) -> Html {
     match switch {
         AppRoute::Dashboard => html! {
             <Dashboard />
+        },
+        AppRoute::CreateTask => html! {
+            <CreateTaskPage />
         },
         AppRoute::NotFound(_) => html! {
         },

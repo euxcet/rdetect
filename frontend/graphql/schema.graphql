@@ -1,0 +1,39 @@
+schema {
+  query: QueryRoot
+  mutation: MutationRoot
+}
+
+# Directs the executor to query only when the field exists.
+directive @ifdef on FIELD
+
+type MutationRoot {
+  createTask(newTask: NewTask!): Task!
+}
+
+input NewTask {
+  name: String!
+  imageFolder: String!
+  xmlFolder: String!
+  labels: [String!]!
+}
+
+scalar ObjectId
+
+type QueryRoot {
+  allUsers: [User!]!
+  allTasks: [Task!]!
+}
+
+type Task {
+  id: ObjectId!
+  name: String!
+  imageFolder: String!
+  xmlFolder: String!
+  labels: [String!]!
+}
+
+type User {
+  id: ObjectId!
+  email: String!
+  username: String!
+}

@@ -3,6 +3,9 @@ mod db;
 mod data;
 mod util;
 
+use tide::http::headers::HeaderValue;
+use tide::security::{CorsMiddleware, Origin};
+
 use crate::gql::{build_schema, graphiql, graphql};
 use crate::util::constant::CFG;
 
@@ -18,7 +21,14 @@ async fn main() -> Result<(), std::io::Error> {
     app.at(CFG.get("GRAPHQL_PATH").unwrap()).post(graphql);
     app.at(CFG.get("GRAPHIQL_PATH").unwrap()).get(graphiql);
 
-    app.listen(format!("{}:{}", "127.0.0.1", "8080")).await?;
+    let cors = CorsMiddleware::new()
+        .allow_methods("GET, POST, OPTIONS".parse::<HeaderValue>().unwrap())
+        .allow_origin(Origin::from("*"))
+        .allow_credentials(false);
+
+    app.with(cors);
+
+    app.listen(format!("{}:{}", CFG.get("ADDRESS").unwrap(), CFG.get("PORT").unwrap())).await?;
 
     Ok(())
 }
