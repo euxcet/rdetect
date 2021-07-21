@@ -2,6 +2,7 @@ mod gql;
 mod db;
 mod data;
 mod util;
+mod file;
 
 use tide::http::headers::HeaderValue;
 use tide::security::{CorsMiddleware, Origin};

@@ -24,4 +24,13 @@ impl QueryRoot {
         let db = ctx.data_unchecked::<DataSource>().db_detect.clone();
         task::service::all_tasks(db).await
     }
+
+    async fn get_task(
+        &self,
+        ctx: &Context<'_>,
+        name: String
+    ) -> GqlResult<Task> {
+        let db = ctx.data_unchecked::<DataSource>().db_detect.clone();
+        task::service::get_task(db, &name).await
+    }
 }

@@ -7,6 +7,7 @@ use mongodb::{
 
 use crate::data::task::model::{Task, NewTask};
 use crate::util::constant::GqlResult;
+use crate::file::*;
 
 pub async fn all_tasks(db: Database) -> GqlResult<Vec<Task>> {
     let coll = db.collection("tasks");
@@ -36,7 +37,7 @@ pub async fn all_tasks(db: Database) -> GqlResult<Vec<Task>> {
     }
 }
 
-pub async fn get_task_by_name(db: Database, name: &str) -> GqlResult<Task> {
+pub async fn get_task(db: Database, name: &str) -> GqlResult<Task> {
     let coll = db.collection("tasks");
 
     let exist_document = coll.find_one(doc! {"name": name}, None).await;
@@ -55,15 +56,17 @@ pub async fn get_task_by_name(db: Database, name: &str) -> GqlResult<Task> {
 
 pub async fn create_task(db: Database, mut new_task: NewTask) -> GqlResult<Task> {
     let coll = db.collection("tasks");
-    if self::get_task_by_name(db.clone(), &new_task.name).await.is_ok() {
+    if self::get_task(db.clone(), &new_task.name).await.is_ok() {
         Err(Error::new("email-exists"))
     } else {
+        new_task.image_folder = create_image_folder(&new_task.name);
+        new_task.xml_folder = create_image_folder(&new_task.name);
         let new_task_bson = to_bson(&new_task).unwrap();
         if let Bson::Document(document) = new_task_bson {
             coll.insert_one(document, None)
                 .await
                 .expect("Failed to insert task into mongodb.");
-            self::get_task_by_name(db.clone(), &new_task.name).await
+            self::get_task(db.clone(), &new_task.name).await
         } else {
             Err(Error::new("3-new_task"))
         }

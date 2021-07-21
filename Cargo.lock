@@ -498,6 +498,7 @@ dependencies = [
  "lazy_static",
  "mongodb",
  "serde",
+ "slab",
  "tide",
 ]
 

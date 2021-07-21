@@ -1,0 +1,9 @@
+query GetTask($name: String) {
+  getTask(name: $name) {
+    id,
+    name,
+    imageFolder,
+    xmlFolder,
+    labels
+  }
+}

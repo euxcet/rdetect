@@ -49,9 +49,6 @@ impl Component for CreateTaskPage {
                 let build_query = CreateTask::build_query(create_task::Variables{ 
                     task: create_task::NewTask {
                         name: self.name.clone(),
-                        imageFolder: String::from("f1"),
-                        xmlFolder: String::from("f2"),
-                        labels: vec![String::from("1")],
                     }
                 });
                 let query = Json(&build_query);

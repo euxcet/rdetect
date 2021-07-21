@@ -39,7 +39,7 @@ impl Dashboard {
                     html! {
                         <div>
                             <li>
-                                { &task["name"].as_str().unwrap() }
+                                <a href={ String::from("ManageTask/") + &task["name"].as_str().unwrap() }> { &task["name"].as_str().unwrap() } </a>
                             </li>
                         </div>
                     }

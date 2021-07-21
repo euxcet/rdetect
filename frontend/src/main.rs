@@ -6,6 +6,7 @@ mod util;
 use crate::component::header::HeaderComponent;
 use crate::page::dashboard::Dashboard;
 use crate::page::create_task::CreateTaskPage;
+use crate::page::manage_task::ManageTaskPage;
 use crate::route::*;
 
 use yew::prelude::*;
@@ -30,6 +31,9 @@ fn switch(switch: AppRoute) -> Html {
         },
         AppRoute::CreateTask => html! {
             <CreateTaskPage />
+        },
+        AppRoute::ManageTask(name) => html! {
+            <ManageTaskPage name={name} />
         },
         AppRoute::NotFound(_) => html! {
         },

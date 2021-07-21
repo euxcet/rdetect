@@ -4,6 +4,8 @@ use yew_router::switch::Permissive;
 
 #[derive(Switch, Debug, Clone, PartialEq)]
 pub enum AppRoute {
+    #[to = "/ManageTask/{name}"]
+    ManageTask(String),
     #[to = "/CreateTask"]
     CreateTask,
     #[to = "/!"]
